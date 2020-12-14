@@ -39,11 +39,11 @@ run:
     num_steps: 300000
     batch_size: 64
     lr: 0.0003
-    memory_size: 2000
+    memory_size: 300000
     gamma: 0.99
     multi_step: 1
     target_entropy_ratio: 0.98
-    start_steps: 1000
+    start_steps: 20000
     update_interval: 4
     target_update_interval: 8000
     use_per: False
