@@ -96,24 +96,24 @@ class LazyMemory(dict):
             (batch_size, *self.state_shape), dtype=np.uint8)
         next_states = np.empty(
             (batch_size, *self.state_shape), dtype=np.uint8)
-        actions = np.empty(batch_size)
-        rewards = np.empty(batch_size)
-        dones = np.empty(batch_size)
+        actions = np.empty((batch_size, 1))
+        rewards = np.empty((batch_size, 1))
+        dones = np.empty((batch_size, 1))
 
         for i, index in enumerate(indices0):
             _index = np.mod(index+bias, self.capacity)
             states[i, ...] = self['state'][_index]['AGENT-0']
             next_states[i, ...] = self['next_state'][_index]['AGENT-0']
-            actions[i] = self['action'][index]['AGENT-0']
-            rewards[i] = self['reward'][index]['AGENT-0']
-            dones[i] = self['done'][index]['AGENT-0']
+            actions[i][0] = self['action'][index]['AGENT-0']
+            rewards[i][0] = self['reward'][index]['AGENT-0']
+            dones[i][0] = self['done'][index]['AGENT-0']
         for i, index in enumerate(indices1):
             _index = np.mod(index + bias, self.capacity)
             states[i+len(indices0), ...] = self['state'][_index]['AGENT-1']
             next_states[i+len(indices0), ...] = self['next_state'][_index]['AGENT-1']
-            actions[i+len(indices0)] = self['action'][index]['AGENT-1']
-            rewards[i+len(indices0)] = self['reward'][index]['AGENT-1']
-            dones[i+len(indices0)] = self['done'][index]['AGENT-1']
+            actions[i+len(indices0)][0] = self['action'][index]['AGENT-1']
+            rewards[i+len(indices0)][0] = self['reward'][index]['AGENT-1']
+            dones[i+len(indices0)][0] = self['done'][index]['AGENT-1']
 
         states = torch.Tensor(states).to(self.device).float()
         next_states = torch.Tensor(next_states).to(self.device).float()

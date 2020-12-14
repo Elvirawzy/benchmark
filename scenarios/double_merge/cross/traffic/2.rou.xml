@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Thu Dec 10 20:45:02 2020 by Eclipse SUMO duarouter Version 1.8.0
+<!-- generated on Mon Dec 14 10:03:56 2020 by Eclipse SUMO duarouter Version 1.8.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
         <net-file value="scenarios/double_merge/cross/map.net.xml"/>
-        <route-files value="/tmp/tmpb115h1bs/trips.trips.xml"/>
+        <route-files value="/tmp/tmpj6giuxkt/trips.trips.xml"/>
     </input>
 
     <output>
@@ -31,12 +31,12 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vType id="actor-car-7970789535007160117" minGap="2.50" speedFactor="normc(1.00,0.20,0.20,2.00)" vClass="passenger" impatience="1.00" lcCooperative="0.25" lcImpatience="1" jmDriveAfterYellowTime="1.0" jmDriveAfterRedTime="1.5" accel="2.6" decel="4.5" sigma="0.5"/>
-    <vehicle id="car-flow-route-gneE22_0_2-gneE5_0_120-1681778576515188354--1818218356871549109--0-0.0" type="actor-car-7970789535007160117" depart="0.00" departLane="0" departPos="2.00" departSpeed="max" arrivalLane="0" arrivalPos="120.00">
+    <vType id="actor-car-4638963620631143885" minGap="2.50" speedFactor="normc(1.00,0.20,0.20,2.00)" vClass="passenger" impatience="1.00" lcCooperative="0.25" lcImpatience="1" jmDriveAfterYellowTime="1.0" jmDriveAfterRedTime="1.5" accel="2.6" decel="4.5" sigma="0.5"/>
+    <vehicle id="car-flow-route-gneE22_0_2-gneE5_0_120-8408589346142798286--5937168016331305350--0-0.0" type="actor-car-4638963620631143885" depart="0.00" departLane="0" departPos="2.00" departSpeed="max" arrivalLane="0" arrivalPos="120.00">
         <route edges="gneE22 gneE5"/>
     </vehicle>
-    <vType id="actor-car--1778130999565087534" minGap="2.50" speedFactor="normc(0.80,0.20,0.20,2.00)" vClass="passenger" impatience="0.50" lcCooperative="0.5" lcImpatience="0" jmDriveAfterYellowTime="1.0" accel="2.6" decel="4.5" sigma="0.5"/>
-    <vehicle id="car-flow-route-gneE22_0_2-gneE5_0_120-1681778576515188354--1818218356871549109--0-1.0" type="actor-car--1778130999565087534" depart="0.00" departLane="0" departPos="2.00" departSpeed="max" arrivalLane="0" arrivalPos="120.00">
+    <vType id="actor-car--463629554298839966" minGap="2.50" speedFactor="normc(0.80,0.20,0.20,2.00)" vClass="passenger" impatience="0.50" lcCooperative="0.5" lcImpatience="0" jmDriveAfterYellowTime="1.0" accel="2.6" decel="4.5" sigma="0.5"/>
+    <vehicle id="car-flow-route-gneE22_0_2-gneE5_0_120-8408589346142798286--5937168016331305350--0-1.0" type="actor-car--463629554298839966" depart="0.00" departLane="0" departPos="2.00" departSpeed="max" arrivalLane="0" arrivalPos="120.00">
         <route edges="gneE22 gneE5"/>
     </vehicle>
 </routes>
