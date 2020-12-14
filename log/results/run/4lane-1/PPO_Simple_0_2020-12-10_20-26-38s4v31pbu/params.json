@@ -1,0 +1,39 @@
+{
+  "callbacks": "<class 'benchmark.agents.common.SimpleCallbacks'>",
+  "clip_param": 0.2,
+  "env": "<class 'benchmark.wrappers.rllib.simple.Simple'>",
+  "env_config": {
+    "agent_specs": {
+      "default_policy": "AgentSpec(interface=AgentInterface(debug=False, done_criteria=DoneCriteria(collision=True, off_road=True, off_route=True, on_shoulder=False, wrong_way=False, not_moving=False), max_episode_steps=1000, neighborhood_vehicles=NeighborhoodVehicles(radius=50), waypoints=Waypoints(lookahead=50), road_waypoints=False, drivable_area_grid_map=False, ogm=False, rgb=False, lidar=False, action=<ActionSpaceType.Lane: 1>), policy_builder=None, policy_params=None, observation_adapter=<function AgentSpec.<lambda> at 0x7fd219945e60>, action_adapter=<function ActionAdapter.discrete_action_adapter at 0x7fd17efbe710>, reward_adapter=<function AgentSpec.<lambda> at 0x7fd219945ef0>, info_adapter=<function default_info_adapter at 0x7fd17efbe830>, perform_self_test=True)"
+    },
+    "base_env_cls": "<class 'smarts.env.rllib_hiway_env.RLlibHiWayEnv'>",
+    "headless": false,
+    "observation_adapter": "<function get_observation_adapter.<locals>.single_frame at 0x7fd17efbea70>",
+    "reward_adapter": "<function get_reward_adapter.<locals>.single_frame at 0x7fd17efbeb90>",
+    "scenarios": [
+      "/home/ziyi/PSRO-SMARTS/SMARTS/benchmark/scenarios/intersections/4lane"
+    ],
+    "seed": 42
+  },
+  "horizon": 1000,
+  "lambda": 0,
+  "log_level": "WARN",
+  "lr": 0.0001,
+  "multiagent": {
+    "policies": {
+      "default_policy": [
+        null,
+        "Dict(distance_to_center:Box(-1000.0, 1000.0, (1,), float32), heading_errors:Box(-1.0, 1.0, (20,), float32), neighbor:Box(-1000.0, 1000.0, (40,), float32), speed:Box(-330.0, 330.0, (1,), float32), steering:Box(-1.0, 1.0, (1,), float32))",
+        "Discrete(4)",
+        {
+          "agent_id": "default_policy"
+        }
+      ]
+    },
+    "policy_mapping_fn": "<function main.<locals>.<lambda> at 0x7fd17efd8440>"
+  },
+  "num_gpus": 0,
+  "num_sgd_iter": 10,
+  "num_workers": 1,
+  "sgd_minibatch_size": 32
+}
