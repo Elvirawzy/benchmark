@@ -101,6 +101,9 @@ class SacdAgent:
 
     def calc_current_q(self, states, actions):
         curr_q1, curr_q2 = self.online_critic(states)
+        print(states.shape)
+        print(curr_q1.shape)
+        print(actions.shape)
         curr_q1 = curr_q1.gather(1, actions.long())
         curr_q2 = curr_q2.gather(1, actions.long())
         return curr_q1, curr_q2
