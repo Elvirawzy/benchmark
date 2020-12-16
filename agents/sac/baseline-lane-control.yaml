@@ -36,15 +36,15 @@ run:
   stop:
     time_total_s: 14400
   config:
-    num_steps: 300000
-    batch_size: 64
+    num_steps: 500000
+    batch_size: 256
     lr: 0.0003
-    memory_size: 300000
+    memory_size: 100000
     gamma: 0.99
     multi_step: 1
     target_entropy_ratio: 0.98
     start_steps: 20000
-    update_interval: 4
+    update_interval: 1
     target_update_interval: 8000
     use_per: False
     dueling_net: False

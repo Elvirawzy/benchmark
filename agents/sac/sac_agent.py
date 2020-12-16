@@ -75,6 +75,7 @@ class BaseAgent(ABC):
 
     def run(self):
         while True:
+            print(self.steps, self.num_steps)
             self.train_episode()
             if self.steps > self.num_steps:
                 break
@@ -89,7 +90,13 @@ class BaseAgent(ABC):
         episode_steps = 0
 
         all_done = False
-        state = self.env.reset()
+        flag = True
+        while flag:
+            try:
+                state = self.env.reset()
+                flag = False
+            except:
+                print("env reset err")
 
         while (not all_done) and episode_steps <= self.max_episode_steps:
 
@@ -135,7 +142,6 @@ class BaseAgent(ABC):
                 self.save_models(os.path.join(self.model_dir, 'final'))
 
         # We log running mean of training rewards.
-        print(episode_return)
         self.train_return.append(episode_return)
 
         if self.episodes % self.log_interval == 0:
@@ -228,7 +234,6 @@ class BaseAgent(ABC):
 
                 for i, agent_id in enumerate(reward):
                     episode_return[i] += reward_sm[i]
-                print(done)
 
                 for agent_id in done.keys():
                     all_done = all_done and done[agent_id]
@@ -240,7 +245,6 @@ class BaseAgent(ABC):
             num_episodes += 1
             total_return[0] += episode_return[0]
             total_return[1] += episode_return[1]
-            print(num_steps, self.num_eval_steps)
 
             if num_steps > self.num_eval_steps:
                 break

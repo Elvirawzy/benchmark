@@ -100,7 +100,7 @@ def parse_args():
     parser.add_argument("--num_workers", type=int, default=1, help="RLlib num workers")
     parser.add_argument("--cluster", action="store_true")
     parser.add_argument("--horizon", type=int, default=1000, help="Horizon for a episode")
-    parser.add_argument("--cuda", action='store_true')
+    parser.add_argument("--cuda", action='store_true', default=True)
     parser.add_argument("--seed", type=int, default=0)
 
     return parser.parse_args()
