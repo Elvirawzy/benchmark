@@ -46,20 +46,25 @@ class MultiStepBuff:
 
 class LazyMemory(dict):
 
-    def __init__(self, capacity, state_shape, device):
+    def __init__(self, n_agent, capacity, state_shape, device):
         super(LazyMemory, self).__init__()
+        self.n_agent = n_agent
         self.capacity = int(capacity)
         self.state_shape = state_shape
         self.device = device
+        self.buffer = None
+        self._n = 0
+        self._p = 0
         self.reset()
 
     def reset(self):
-        self['state'] = []
-        self['next_state'] = []
-        self['action'] = np.array([{} for i in range(self.capacity)])
-        self['reward'] = np.array([{} for i in range(self.capacity)])
-        self['done'] = np.array([{} for i in range(self.capacity)])
-
+        self.buffer = dict()
+        for i in range(self.n_agent):
+            self.buffer['s_%d' % i] = np.empty([self.capacity, self.state_shape[0]])
+            self.buffer['a_%d' % i] = np.empty([self.capacity])
+            self.buffer['r_%d' % i] = np.empty([self.capacity])
+            self.buffer['s_next_%d' % i] = np.empty([self.capacity, self.state_shape[0]])
+            self.buffer['d_%d' % i] = np.empty([self.capacity])
         self._n = 0
         self._p = 0
 
@@ -68,26 +73,22 @@ class LazyMemory(dict):
         self._append(state, action, reward, next_state, done)
 
     def _append(self, state, action, reward, next_state, done):
-        self['state'].append(state)
-        self['next_state'].append(next_state)
-        self['action'][self._p] = action
-        self['reward'][self._p] = reward
-        self['done'][self._p] = done
+        for i, agent_id in enumerate(state):
+            self.buffer['s_%d' % i][self._p] = state[agent_id]
+            self.buffer['a_%d' % i][self._p] = action[agent_id]
+            self.buffer['r_%d' % i][self._p] = reward[agent_id]
+            self.buffer['s_next_%d' % i][self._p] = next_state[agent_id]
+            self.buffer['d_%d' % i][self._p] = done[agent_id]
 
         self._n = min(self._n + 1, self.capacity)
         self._p = (self._p + 1) % self.capacity
 
-        self.truncate()
-
-    def truncate(self):
-        while len(self['state']) > self.capacity:
-            del self['state'][0]
-            del self['next_state'][0]
-
     def sample(self, batch_size):
-        indices0 = np.random.randint(low=0, high=len(self), size=math.floor(batch_size/2))
-        indices1 = np.random.randint(low=0, high=len(self), size=math.ceil(batch_size/2))
-        return self._sample(indices0, indices1, batch_size)
+        indices = np.random.randint(low=0, high=len(self), size=batch_size)
+        sample_buffer = {}
+        for key in self.buffer.keys():
+            sample_buffer[key] = self.buffer[key][indices]
+        return sample_buffer
 
     def _sample(self, indices0, indices1, batch_size):
         bias = -self._p if self._n == self.capacity else 0
@@ -129,9 +130,9 @@ class LazyMemory(dict):
 
 class LazyMultiStepMemory(LazyMemory):
 
-    def __init__(self, capacity, state_shape, device, gamma=0.99,
+    def __init__(self, n_agent, capacity, state_shape, device, gamma=0.99,
                  multi_step=3):
-        super(LazyMultiStepMemory, self).__init__(
+        super(LazyMultiStepMemory, self).__init__(n_agent,
             capacity, state_shape, device)
 
         self.gamma = gamma

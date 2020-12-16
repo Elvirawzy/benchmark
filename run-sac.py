@@ -30,23 +30,22 @@ from smarts.core.agent_interface import AgentInterface
 from smarts.core.scenario import Scenario
 
 from benchmark.agents import load_config
-from benchmark.agents.sac.sac_agent import SacdAgent
-
+from benchmark.agents.sac.sac_runner import Runner
 
 RUN_NAME = Path(__file__).stem
 EXPERIMENT_NAME = "{scenario}-{n_agent}"
 
 
 def main(
-    scenario,
-    config_file,
-    log_dir,
-    restore_path=None,
-    num_workers=1,
-    horizon=1000,
-    paradigm="decentralized",
-    headless=False,
-    cluster=False,
+        scenario,
+        config_file,
+        log_dir,
+        restore_path=None,
+        num_workers=1,
+        horizon=1000,
+        paradigm="decentralized",
+        headless=False,
+        cluster=False,
 ):
     if cluster:
         ray.init(address="auto", redis_password="5241590000000000")
@@ -57,44 +56,32 @@ def main(
         )
     scenario_path = Path(scenario).absolute()
     agent_missions_count = Scenario.discover_agent_missions_count(scenario_path)
-    if agent_missions_count == 0:
-        agent_ids = ["default_policy"]
-    else:
-        agent_ids = [f"AGENT-{i}" for i in range(agent_missions_count)]
 
     config = load_config(config_file)
-    agents = {
-        agent_id: AgentSpec(
-            **config["agent"], interface=AgentInterface(**config["interface"])
-        )
-        for agent_id in agent_ids
-    }
-
-    env = gym.make(
-        "smarts.env:hiway-v0",
-        seed=42,
-        scenarios=[str(scenario_path)],
-        headless=headless,
-        agent_specs=agents,)
 
     obs_space, act_space = config["policy"][1:3]
     SacConfig = config["run"]["config"]
     log_dir = os.path.join(log_dir, 'sac', time.strftime("%d-%m-%Y_%H-%M-%S"))
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    cf = open(log_dir+'/config.txt', 'a')
+    for k, v in SacConfig.items():
+        cf.write(str(k)+':'+str(v)+'\n')
+    cf.close()
 
-    SacAgent = SacdAgent(env=env, test_env=env, obs_space=obs_space, act_space=act_space, log_dir=log_dir,
-                         agent_ids=agent_ids, config=config, cuda=args.cuda, seed=args.seed, **SacConfig)
-
-    SacAgent.run()
+    runner = Runner(obs_space=obs_space, act_space=act_space, log_dir=log_dir, scenario_path=scenario_path,
+                    n_agent=agent_missions_count, config=config, cuda=args.cuda, **SacConfig)
+    runner.run()
 
 
 def parse_args():
     parser = argparse.ArgumentParser("Benchmark learning")
-    parser.add_argument("scenario", type=str, help="Scenario name",)
+    parser.add_argument("scenario", type=str, help="Scenario name", )
     parser.add_argument("--paradigm", type=str, default="decentralized",
-                        help="Algorithm paradigm, decentralized (default) or centralized",)
+                        help="Algorithm paradigm, decentralized (default) or centralized", )
     parser.add_argument("--headless", default=False, action="store_true", help="Turn on headless mode")
-    parser.add_argument("--log_dir",  default="./log/results", type=str,
-                        help="Path to store RLlib log and checkpoints, default is ./log/results",)
+    parser.add_argument("--log_dir", default="./log/results", type=str,
+                        help="Path to store RLlib log and checkpoints, default is ./log/results", )
     parser.add_argument("--config_file", "-f", type=str, required=True)
     parser.add_argument("--restore_path", type=str, default=None)
     parser.add_argument("--num_workers", type=int, default=1, help="RLlib num workers")
