@@ -82,7 +82,7 @@ def main(
     log_dir = os.path.join(log_dir, 'sac', time.strftime("%d-%m-%Y_%H-%M-%S"))
 
     SacAgent = SacdAgent(env=env, test_env=env, obs_space=obs_space, act_space=act_space, log_dir=log_dir,
-                         cuda=args.cuda, seed=args.seed, **SacConfig)
+                         agent_ids=agent_ids, config=config, cuda=args.cuda, seed=args.seed, **SacConfig)
 
     SacAgent.run()
 

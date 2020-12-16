@@ -2,6 +2,7 @@
 Decentralized SAC agent
 """
 from torch.optim import Adam
+import gym
 
 from .sac_model import TwinnedQNetwork, CateoricalPolicy
 from torch.nn import functional as ff
@@ -12,6 +13,8 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from collections import OrderedDict
+from smarts.core.agent import AgentSpec
+from smarts.core.agent_interface import AgentInterface
 
 from .sac_memory import LazyMultiStepMemory
 from .sac_utils import update_params, RunningMeanStats
@@ -19,7 +22,7 @@ from .sac_utils import update_params, RunningMeanStats
 
 class BaseAgent(ABC):
 
-    def __init__(self, env, test_env, obs_space, act_space, log_dir, num_steps=100000, batch_size=64,
+    def __init__(self, env, test_env, obs_space, act_space, log_dir, agent_ids, config, num_steps=100000, batch_size=64,
                  memory_size=1000000, gamma=0.99, multi_step=1,
                  target_entropy_ratio=0.98, start_steps=20000,
                  update_interval=4, target_update_interval=8000,
@@ -30,6 +33,8 @@ class BaseAgent(ABC):
         self.test_env = test_env
         self.obs_space = self.get_obs_shape(obs_space.spaces)
         self.act_space = act_space
+        self.config = config
+        self.agent_ids = agent_ids
 
         # Set seed.
         torch.manual_seed(seed)
@@ -97,35 +102,58 @@ class BaseAgent(ABC):
                 flag = False
             except:
                 print("env reset err")
+                agents = {
+                    agent_id: AgentSpec(
+                        **self.config["agent"], interface=AgentInterface(**self.config["interface"])
+                    )
+                    for agent_id in self.agent_ids
+                }
+                self.env = gym.make(
+                    "smarts.env:hiway-v0",
+                    seed=42,
+                    scenarios=[str("scenarios/double_merge/nocross")],
+                    headless=False,
+                    agent_specs=agents,
+                )
+                print("reinit env")
 
         while (not all_done) and episode_steps <= self.max_episode_steps:
 
             action_list = {}
-            processed_state = {}
-            for agent_id in state.keys():
-                processed_state[agent_id] = self.process_obs(state[agent_id], 0)
+            processed_state = np.zeros((2, 1, self.obs_space[0]))
+            for i, agent_id in enumerate(state):
+                processed_a_state = self.process_obs(state[agent_id], 0)
+                processed_state[i] = processed_a_state
                 if self.start_steps > self.steps:
                     action = self.act_space.sample()
                 else:
-                    action = self.explore(processed_state[agent_id])
+                    action = self.explore(processed_a_state)
                 action_list[agent_id] = action
             next_state, reward, done, _ = self.env.step(action_list)
 
-            processed_reward = {}
-            reward_list = np.zeros(2)
+            processed_reward = np.zeros((2, 1))
             for i, agent_id in enumerate(reward):
-                reward_list[i] = reward[agent_id]
-            reward_sm = ff.softmax(torch.from_numpy(reward_list).float(), dim=0).numpy()
+                processed_reward[i][0] = reward[agent_id]
+            reward_sm = ff.softmax(torch.cat(processed_reward).float(), dim=0).numpy()
             for i, agent_id in enumerate(reward):
-                processed_reward[agent_id] = reward_sm[i]
+                processed_reward[i][0] = reward_sm[i]
                 episode_return[i] += reward_sm[i]
-            for agent_id in done.keys():
+
+            processed_done = np.zeros((2, 1))
+            for i, agent_id in enumerate(done):
                 all_done = (all_done or done[agent_id])
+                processed_done[i][0] = int(done[agent_id])
             # To calculate efficiently, set priority=max_priority here.
-            processed_next_state = {}
-            for agent_id in next_state.keys():
-                processed_next_state[agent_id] = self.process_obs(next_state[agent_id], 0)
-            self.memory.append(processed_state, action_list, processed_reward, processed_next_state, done)
+            processed_next_state = np.zeros((2, 1, self.obs_space[0]))
+            for i, agent_id in enumerate(next_state):
+                processed_next_state[i] = self.process_obs(next_state[agent_id], 0)
+
+            print(processed_state)
+            print(action_list)
+            print(processed_reward)
+            print(processed_next_state)
+            print(processed_done)
+            self.memory.append(processed_state, processed_reward, processed_reward, processed_next_state, processed_done)
 
             self.steps += 1
             episode_steps += 1
